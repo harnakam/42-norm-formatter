@@ -23,6 +23,19 @@
       "expectedErrors": []
     },
     {
+      "name": "va_list joins the function declaration block",
+      "file": "tests/cases/ft_printf_va_list.c",
+      "expectedErrors": [
+        "TOO_MANY_LINES"
+      ],
+      "expectContains": [
+        "int\t\ttotal;",
+        "int\t\tprinted;",
+        "va_list\targs;",
+        "va_list\targs;\n\n\tif (!format)"
+      ]
+    },
+    {
       "name": "pointer spacing",
       "file": "tests/cases/pointer_spacing.c",
       "expectedErrors": []
@@ -144,6 +157,18 @@
       "expectContains": [
         "ptr = malloc(count * size);",
         "ft_bzero(ptr, count * size);"
+      ]
+    },
+    {
+      "name": "libft memcmp compacts dereference after casts",
+      "file": "tests/cases/libft_memcmp_cast_dereference.c",
+      "expectedErrors": [],
+      "expectContains": [
+        "return ((unsigned char)*s1 - (unsigned char)*s2);"
+      ],
+      "expectNotContains": [
+        "(unsigned char) *s1",
+        "(unsigned char) * s1"
       ]
     },
     {

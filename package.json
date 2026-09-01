@@ -2,7 +2,7 @@
   "name": "42-norm-formatter",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.1.4",
+  "version": "0.1.7",
   "publisher": "harnakam",
   "icon": "assets/icon.png",
   "license": "MIT",
