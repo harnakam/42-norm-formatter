@@ -1,0 +1,260 @@
+{
+  "cases": [
+    {
+      "name": "header insertion",
+      "file": "tests/cases/header_insert.c",
+      "expectedErrors": [],
+      "expectContains": [
+        "By: username <username@student.42tokyo.jp>"
+      ]
+    },
+    {
+      "name": "header refresh preserves created timestamp",
+      "file": "tests/cases/header_refresh.c",
+      "expectedErrors": [],
+      "expectContains": [
+        "By: username <username@student.42tokyo.jp>"
+      ],
+      "expectCreated": "2025/01/02 03:04:05"
+    },
+    {
+      "name": "declaration alignment",
+      "file": "tests/cases/declaration_alignment.c",
+      "expectedErrors": []
+    },
+    {
+      "name": "pointer spacing",
+      "file": "tests/cases/pointer_spacing.c",
+      "expectedErrors": []
+    },
+    {
+      "name": "sample header tab alignment",
+      "file": "tests/cases/sample_complex.h",
+      "expectedErrors": [],
+      "expectContains": [
+        "#ifndef SAMPLE_COMPLEX_H"
+      ]
+    },
+    {
+      "name": "global comment and preprocessor",
+      "file": "tests/cases/global_comment_ok.c",
+      "expectedErrors": []
+    },
+    {
+      "name": "function pointer declarations",
+      "file": "tests/cases/function_pointer.c",
+      "expectedErrors": []
+    },
+    {
+      "name": "declaration assignment plus hoist is clean",
+      "file": "tests/cases/decl_assignment_split.c",
+      "transforms": {
+        "splitDeclarationAssignment": true,
+        "hoistDeclarationsToFunctionTop": true
+      },
+      "expectedErrors": [],
+      "expectContains": [
+        "char\t*text;",
+        "text = \"abc\";"
+      ]
+    },
+    {
+      "name": "custom type source with control wrapping transform",
+      "file": "tests/cases/custom_type_source.c",
+      "transforms": {
+        "wrapSingleStatementBodies": true
+      },
+      "expectedErrors": [],
+      "expectContains": [
+        "t_user\t*u;",
+        "\tif (!stream)\n\t{",
+        "\twhile (u && u->id != id)\n\t{"
+      ]
+    },
+    {
+      "name": "nested control blocks",
+      "file": "tests/cases/control_blocks.c",
+      "expectedErrors": []
+    },
+    {
+      "name": "nested declarations are hoisted to function top",
+      "file": "tests/cases/hoist_declarations.c",
+      "transforms": {
+        "hoistDeclarationsToFunctionTop": true
+      },
+      "expectedErrors": [],
+      "expectContains": [
+        "int\ttmp;"
+      ]
+    },
+    {
+      "name": "for loops can be rewritten into while loops",
+      "file": "tests/cases/rewrite_for_to_while.c",
+      "transforms": {
+        "rewriteForToWhile": true,
+        "splitDeclarationAssignment": true,
+        "hoistDeclarationsToFunctionTop": true
+      },
+      "expectedErrors": [],
+      "expectContains": [
+        "while (i < 3)",
+        "i++;"
+      ],
+      "expectNotContains": [
+        "for ("
+      ]
+    },
+    {
+      "name": "libft atoi spacing stays clean after formatting",
+      "file": "tests/cases/libft_atoi_regression.c",
+      "expectedErrors": [],
+      "expectContains": [
+        "int\tsign;",
+        "int\tresult;",
+        "return (sign * result);"
+      ],
+      "expectNotContains": [
+        "return (sign *result);"
+      ]
+    },
+    {
+      "name": "libft bzero keeps typedef declarations aligned",
+      "file": "tests/cases/libft_bzero_alignment.c",
+      "expectedErrors": [],
+      "expectContains": [
+        "unsigned char\t*pointer;",
+        "size_t\t\t\ti;"
+      ]
+    },
+    {
+      "name": "libft calloc preserves operator spacing around casts",
+      "file": "tests/cases/libft_calloc_operator_spacing.c",
+      "expectedErrors": [],
+      "expectContains": [
+        "ptr = malloc(count * size);",
+        "ft_bzero(ptr, count * size);"
+      ]
+    },
+    {
+      "name": "libft itoa rewrites break keyword spacing",
+      "file": "tests/cases/libft_itoa_break.c",
+      "expectedErrors": [],
+      "expectContains": [
+        "break ;"
+      ]
+    },
+    {
+      "name": "comment inside function remains diagnostic",
+      "file": "tests/cases/comment_scope_error.c",
+      "expectedErrors": [
+        "WRONG_SCOPE_COMMENT"
+      ]
+    },
+    {
+      "name": "single-line control remains diagnostic",
+      "file": "tests/cases/single_line_control_error.c",
+      "expectedErrors": [
+        "MULT_IN_SINGLE_INSTR"
+      ]
+    },
+    {
+      "name": "comment inside function is removed when transform is enabled",
+      "file": "tests/cases/comment_scope_error.c",
+      "transforms": {
+        "stripFunctionComments": true
+      },
+      "expectedErrors": [],
+      "expectNotContains": [
+        "not fixable safely"
+      ]
+    },
+    {
+      "name": "single-line if body is wrapped when transform is enabled",
+      "file": "tests/cases/single_line_control_error.c",
+      "transforms": {
+        "wrapSingleStatementBodies": true
+      },
+      "expectedErrors": [],
+      "expectContains": [
+        "\tif (i--)\n\t{"
+      ]
+    },
+    {
+      "name": "single-line else remains diagnostic",
+      "file": "tests/cases/else_single_line_error.c",
+      "expectedErrors": []
+    },
+    {
+      "name": "single-line else body is wrapped when transform is enabled",
+      "file": "tests/cases/else_single_line_error.c",
+      "transforms": {
+        "wrapSingleStatementBodies": true
+      },
+      "expectedErrors": [],
+      "expectContains": [
+        "\telse\n\t{"
+      ]
+    },
+    {
+      "name": "single-line while remains diagnostic",
+      "file": "tests/cases/while_single_line_error.c",
+      "expectedErrors": []
+    },
+    {
+      "name": "single-line while body is wrapped when transform is enabled",
+      "file": "tests/cases/while_single_line_error.c",
+      "transforms": {
+        "wrapSingleStatementBodies": true
+      },
+      "expectedErrors": [],
+      "expectContains": [
+        "\twhile (value--)\n\t{"
+      ]
+    },
+    {
+      "name": "single-line for keeps control-structure error",
+      "file": "tests/cases/for_single_line_error.c",
+      "expectedErrors": [
+        "FORBIDDEN_CS"
+      ]
+    },
+    {
+      "name": "single-line for body is wrapped when transform is enabled",
+      "file": "tests/cases/for_single_line_error.c",
+      "transforms": {
+        "wrapSingleStatementBodies": true
+      },
+      "expectedErrors": [
+        "FORBIDDEN_CS"
+      ],
+      "expectContains": [
+        "\tfor (i = 0; i < 3; i++)\n\t{"
+      ]
+    },
+    {
+      "name": "else-if chain stays intact when transform is enabled",
+      "file": "tests/cases/else_if_chain.c",
+      "transforms": {
+        "wrapSingleStatementBodies": true
+      },
+      "expectedErrors": [],
+      "expectContains": [
+        "else if (value == 1)"
+      ]
+    },
+    {
+      "name": "comma operator inside condition is parsed safely",
+      "file": "tests/cases/comma_operator_control.c",
+      "transforms": {
+        "wrapSingleStatementBodies": true
+      },
+      "expectedErrors": [
+        "ASSIGN_IN_CONTROL"
+      ],
+      "expectContains": [
+        "if ((a = 1, b = 2, a < b))",
+        "\t{"
+      ]
+    }
+  ]
+}

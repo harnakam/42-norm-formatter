@@ -1,0 +1,19 @@
+**/.git/**
+**/.github/**
+**/.vscode/**
+**/__pycache__/**
+**/*.pyc
+**/*.pyo
+**/*.vsix
+norm srcs/tests/**
+norm srcs/pdf/**
+norm srcs/action.yml
+norm srcs/Dockerfile
+norm srcs/poetry.lock
+norm srcs/poetry.toml
+norm srcs/pyproject.toml
+norm srcs/.github/**
+scripts/**
+tests/**
+tmp/**
+素材/**
