@@ -6,6 +6,10 @@
 **/*.pyo
 **/*.vsix
 .env
+**/.env.*
+**/.mypy_cache/**
+**/.pytest_cache/**
+python/vendor/bin/**
 norm srcs/tests/**
 norm srcs/pdf/**
 norm srcs/action.yml

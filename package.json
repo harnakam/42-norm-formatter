@@ -2,7 +2,7 @@
   "name": "42-norm-formatter",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "publisher": "harnakam",
   "icon": "assets/icon.png",
   "license": "MIT",
@@ -29,10 +29,20 @@
     "onCommand:normFormatter.runCurrentFile",
     "onCommand:normFormatter.runWorkspace",
     "workspaceContains:**/*.c",
-    "workspaceContains:**/*.h"
+    "workspaceContains:**/*.h",
+    "onLanguage:python",
+    "workspaceContains:**/*.py"
   ],
   "main": "./extension.js",
   "contributes": {
+    "keybindings": [
+      {
+        "command": "normFormatter.formatDocument",
+        "key": "ctrl+alt+f",
+        "mac": "cmd+alt+f",
+        "when": "editorTextFocus && !editorReadonly && (editorLangId == c || editorLangId == cpp || editorLangId == objective-c || editorLangId == python)"
+      }
+    ],
     "commands": [
       {
         "command": "normFormatter.showMenu",
@@ -53,11 +63,67 @@
       {
         "command": "normFormatter.configure",
         "title": "%command.configure.title%"
+      },
+      {
+        "command": "normFormatter.configureHighlighter",
+        "title": "%command.configureHighlighter.title%"
+      },
+      {
+        "command": "normFormatter.python.showMenu",
+        "title": "%python.command.showMenu.title%"
+      },
+      {
+        "command": "normFormatter.python.formatDocument",
+        "title": "%python.command.formatDocument.title%"
+      },
+      {
+        "command": "normFormatter.python.checkCurrentFile",
+        "title": "%python.command.checkCurrentFile.title%"
+      },
+      {
+        "command": "normFormatter.python.checkWorkspace",
+        "title": "%python.command.checkWorkspace.title%"
+      },
+      {
+        "command": "normFormatter.python.configure",
+        "title": "%python.command.configure.title%"
+      },
+      {
+        "command": "normFormatter.python.showOutput",
+        "title": "%python.command.showOutput.title%"
       }
     ],
     "configuration": {
       "title": "%configuration.title%",
       "properties": {
+        "normFormatter.highlighter.enabled": {
+          "type": "boolean", "default": true,
+          "description": "%config.highlighter.enabled.description%"
+        },
+        "normFormatter.highlighter.wholeLine": {
+          "type": "boolean", "default": true,
+          "description": "%config.highlighter.wholeLine.description%"
+        },
+        "normFormatter.highlighter.errorColor": {
+          "type": "string", "default": "#f14c4c22", "format": "color-hex",
+          "description": "%config.highlighter.errorColor.description%"
+        },
+        "normFormatter.highlighter.warningColor": {
+          "type": "string", "default": "#cca70022", "format": "color-hex",
+          "description": "%config.highlighter.warningColor.description%"
+        },
+        "normFormatter.python.repairMissingColons": {
+          "type": "boolean", "default": true,
+          "description": "%python.config.repairMissingColons.description%"
+        },
+        "normFormatter.python.addNoneReturnAnnotations": {
+          "type": "boolean", "default": true,
+          "description": "%python.config.addNoneReturnAnnotations.description%"
+        },
+        "normFormatter.python.addLiteralReturnAnnotations": {
+          "type": "boolean", "default": true,
+          "description": "%python.config.addLiteralReturnAnnotations.description%"
+        },
         "normFormatter.pythonPath": {
           "type": "string",
           "default": "python",
@@ -156,8 +222,172 @@
           "default": false,
           "description": "%config.allowUnsafeTransforms.description%",
           "markdownDeprecationMessage": "%config.allowUnsafeTransforms.deprecation%"
+        },
+        "normFormatter.python.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "%python.config.pythonPath.description%"
+        },
+        "normFormatter.python.formatOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "%python.config.formatOnSave.description%"
+        },
+        "normFormatter.python.checkOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "%python.config.checkOnSave.description%"
+        },
+        "normFormatter.python.checkOnOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "%python.config.checkOnOpen.description%"
+        },
+        "normFormatter.python.checkOnChange": {
+          "type": "boolean",
+          "default": false,
+          "description": "%python.config.checkOnChange.description%"
+        },
+        "normFormatter.python.checkOnChangeDelay": {
+          "type": "integer",
+          "default": 750,
+          "minimum": 100,
+          "maximum": 10000,
+          "description": "%python.config.checkOnChangeDelay.description%"
+        },
+        "normFormatter.python.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "%python.config.showStatusBar.description%"
+        },
+        "normFormatter.python.traceRunner": {
+          "type": "boolean",
+          "default": false,
+          "description": "%python.config.traceRunner.description%"
+        },
+        "normFormatter.python.black.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%python.config.black.enabled.description%"
+        },
+        "normFormatter.python.black.lineLength": {
+          "type": "integer",
+          "default": 88,
+          "minimum": 40,
+          "maximum": 320,
+          "description": "%python.config.black.lineLength.description%"
+        },
+        "normFormatter.python.black.skipStringNormalization": {
+          "type": "boolean",
+          "default": false,
+          "description": "%python.config.black.skipStringNormalization.description%"
+        },
+        "normFormatter.python.black.skipMagicTrailingComma": {
+          "type": "boolean",
+          "default": false,
+          "description": "%python.config.black.skipMagicTrailingComma.description%"
+        },
+        "normFormatter.python.black.targetVersions": {
+          "type": "array",
+          "default": [],
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "py310",
+              "py311",
+              "py312",
+              "py313",
+              "py314",
+              "py315"
+            ]
+          },
+          "description": "%python.config.black.targetVersions.description%"
+        },
+        "normFormatter.python.black.extraArgs": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "%python.config.black.extraArgs.description%"
+        },
+        "normFormatter.python.flake8.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%python.config.flake8.enabled.description%"
+        },
+        "normFormatter.python.flake8.maxLineLength": {
+          "type": "integer",
+          "default": 88,
+          "minimum": 40,
+          "maximum": 1000,
+          "description": "%python.config.flake8.maxLineLength.description%"
+        },
+        "normFormatter.python.flake8.ignore": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "%python.config.flake8.ignore.description%"
+        },
+        "normFormatter.python.flake8.select": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "%python.config.flake8.select.description%"
+        },
+        "normFormatter.python.flake8.extraArgs": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "%python.config.flake8.extraArgs.description%"
+        },
+        "normFormatter.python.mypy.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%python.config.mypy.enabled.description%"
+        },
+        "normFormatter.python.mypy.strict": {
+          "type": "boolean",
+          "default": true,
+          "description": "%python.config.mypy.strict.description%"
+        },
+        "normFormatter.python.mypy.followImports": {
+          "type": "string",
+          "default": "normal",
+          "enum": [
+            "normal",
+            "silent",
+            "skip",
+            "error"
+          ],
+          "description": "%python.config.mypy.followImports.description%"
+        },
+        "normFormatter.python.mypy.ignoreMissingImports": {
+          "type": "boolean",
+          "default": false,
+          "description": "%python.config.mypy.ignoreMissingImports.description%"
+        },
+        "normFormatter.python.mypy.extraArgs": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "%python.config.mypy.extraArgs.description%"
         }
       }
     }
+  },
+  "scripts": {
+    "test": "node --test tests/js/*.test.js && python -B -m unittest discover -s tests/python -v && python -B -m unittest discover -s tests/integration -v",
+    "test:c": "node --test tests/js/c-regression.test.js",
+    "package": "vsce package --no-dependencies"
   }
 }

@@ -1,2 +1,6 @@
 .env
 *.vsix
+__pycache__/
+*.pyc
+.mypy_cache/
+node_modules/

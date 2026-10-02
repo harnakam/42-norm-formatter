@@ -5,6 +5,8 @@ const vscode = require('vscode');
 
 const { formatDocumentText } = require('./lib/formatter');
 const { NorminetteService } = require('./lib/norminette');
+const { PyFormatterExtension } = require('./lib/python/extension');
+const { DiagnosticHighlighter } = require('./lib/highlighter');
 
 const SUPPORTED_EXTENSIONS = new Set(['.c', '.h']);
 const SUPPORTED_LANGUAGE_IDS = new Set(['c', 'cpp', 'objective-c']);
@@ -27,9 +29,12 @@ class NormFormatterExtension {
     this.pendingTimers = new Map();
     this.lastResults = new Map();
     this.runningDocuments = new Set();
+    this.python = new PyFormatterExtension(context);
   }
 
   register() {
+    this.python.register();
+    new DiagnosticHighlighter(this.context).register();
     this.context.subscriptions.push(
       this.output,
       this.diagnostics,
@@ -262,6 +267,7 @@ class NormFormatterExtension {
 
   async runCurrentFile(manual) {
     const editor = vscode.window.activeTextEditor;
+    if (this.python.isPythonDocument(editor?.document)) return this.python.checkCurrentFile();
     if (!editor || !this.isSupportedDocument(editor.document)) {
       vscode.window.showWarningMessage(t('Open a .c or .h file first.', '.c または .h ファイルを開いてください。'));
       return;
@@ -270,6 +276,7 @@ class NormFormatterExtension {
   }
 
   async runWorkspace() {
+    if (this.python.isPythonDocument(vscode.window.activeTextEditor?.document)) return this.python.checkWorkspace();
     const workspaceFolder = this.getWorkspaceFolder(vscode.window.activeTextEditor?.document?.uri);
     if (!workspaceFolder) {
       vscode.window.showWarningMessage(t('Open a workspace folder to run norminette on all files.', 'ワークスペースフォルダを開いてから norminette を実行してください。'));
@@ -332,6 +339,7 @@ class NormFormatterExtension {
 
   async formatActiveEditor() {
     const editor = vscode.window.activeTextEditor;
+    if (this.python.isPythonDocument(editor?.document)) return this.python.formatActiveEditor();
     if (!editor || !this.isSupportedDocument(editor.document)) {
       vscode.window.showWarningMessage(t('Open a .c or .h file first.', '.c または .h ファイルを開いてください。'));
       return;
@@ -349,6 +357,7 @@ class NormFormatterExtension {
   }
 
   async showMenu() {
+    if (this.python.isPythonDocument(vscode.window.activeTextEditor?.document)) return this.python.showMenu();
     const editor = vscode.window.activeTextEditor;
     const config = this.getConfig(editor?.document?.uri);
     const transforms = this.getTransformOptions(config);
@@ -372,7 +381,8 @@ class NormFormatterExtension {
       { label: t('Edit header email', 'header のメールアドレスを編集'), description: t(`Current: ${config.headerEmail}`, `現在: ${config.headerEmail}`), action: () => this.editHeaderEmail(config.headerEmail) },
       { label: t('Edit Python path', 'Python パスを編集'), description: t(`Current: ${config.pythonPath}`, `現在: ${config.pythonPath}`), action: () => this.editPythonPath(config.pythonPath) },
       { label: t('Edit compatibility rules', '互換ルールを編集'), description: t(`Current: ${(config.compatibilityRules || []).join(', ') || '(none)'}`, `現在: ${(config.compatibilityRules || []).join(', ') || '(なし)'}`), action: () => this.editCompatibilityRules(config.compatibilityRules) },
-      { label: t('Open extension settings', '拡張機能設定を開く'), description: t('Open VS Code settings for this extension', 'この拡張機能の VS Code 設定を開きます'), action: () => vscode.commands.executeCommand('workbench.action.openSettings', '@ext:username.42-norm-formatter') }
+      { label: t('Error highlighter settings', 'エラーハイライト設定'), action: () => vscode.commands.executeCommand('workbench.action.openSettings', 'normFormatter.highlighter') },
+      { label: t('Open extension settings', '拡張機能設定を開く'), description: t('Open VS Code settings for this extension', 'この拡張機能の VS Code 設定を開きます'), action: () => vscode.commands.executeCommand('workbench.action.openSettings', '@ext:harnakam.42-norm-formatter') }
     ];
     const pick = await vscode.window.showQuickPick(items, {
       title: t('42 Norm Formatter', '42 Norm Formatter'),
@@ -498,6 +508,10 @@ class NormFormatterExtension {
   }
 
   refreshStatusBar(document, state = {}) {
+    if (this.python.isPythonDocument(vscode.window.activeTextEditor?.document)) {
+      this.statusBar.hide();
+      return;
+    }
     const config = this.getConfig(document?.uri);
     if (!config.showStatusBar) {
       this.statusBar.hide();
@@ -550,5 +564,6 @@ function deactivate() {}
 
 module.exports = {
   activate,
-  deactivate
+  deactivate,
+  NormFormatterExtension
 };
